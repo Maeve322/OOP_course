@@ -1,14 +1,15 @@
-from abc import ABC,abstractmethod
+from abc import ABC, abstractmethod
 import json
-from uuid import uuid4
+
+
 class SaverFactory(ABC):
     def __init__(self):
-        ...
+        pass
 
     @abstractmethod
-    def add_vacancy(self,vacancy):
-        ...
-        
+    def add_vacancy(self, vacancy):
+        pass
+
     @abstractmethod
     def get_vacancies(self, criteria):
         pass
@@ -16,22 +17,23 @@ class SaverFactory(ABC):
     @abstractmethod
     def remove_vacancy(self, vacancy_id):
         pass
-        
+
+
 class JsonSaver(SaverFactory):
     def __init__(self):
         self.__vacancies = []
         self.load_vacancies()
+
     def load_vacancies(self):
         try:
-            with open("vacancies.json","r") as f:
+            with open("vacancies.json", "r") as f:
                 self.__vacancies = json.loads(f.read())
-                f.close()
         except FileNotFoundError:
             self.__vacancies = []
-        except json.decoder.JSONDecodeError:
+        except json.JSONDecodeError:
             self.__vacancies = []
-    def add_vacancy(self,vacancy):
-        
+
+    def add_vacancy(self, vacancy):
         ids_vacancy = {
             "id": len(self.__vacancies),
             "name": vacancy.name,
@@ -39,19 +41,17 @@ class JsonSaver(SaverFactory):
             "salary": vacancy.salary,
             "URL": vacancy.URL
         }
-            
         self.__vacancies.append(ids_vacancy)
-        with open("vacancies.json","w") as f:
+        with open("vacancies.json", "w") as f:
             f.write(json.dumps(self.__vacancies))
-            f.close()
-            
-    def get_vacancies(self, id):
-        return self.__vacancies[id]
+
+    def get_vacancies(self, vacancy_id):
+        return self.__vacancies[vacancy_id]
+
     def remove_vacancy(self, vacancy_id):
         for vacancy in self.__vacancies:
             if vacancy["id"] == vacancy_id:
                 self.__vacancies.remove(vacancy)
                 break
-
         with open("vacancies.json", "w") as f:
             f.write(json.dumps(self.__vacancies))
